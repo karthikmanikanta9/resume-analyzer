@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block title %}History{% endblock %}
 {% block content %}
-<h3 class="mb-3">Recent analyses</h3>
+<h3 class="mb-1">Your recent analyses</h3>
+<p class="text-muted">Only analyses made in this browser are shown.</p>
 <div class="card"><div class="table-responsive">
 <table class="table table-hover align-middle mb-0">
   <thead><tr><th>File</th><th>Role</th><th>Resume score</th><th>ATS score</th><th>Date</th><th></th></tr></thead>
   <tbody>
   {% for i in items %}
     <tr><td>{{ i.filename }}</td><td>{{ i.role }}</td><td>{{ i.resume_score }}/100</td><td>{{ i.ats_score }}%</td><td>{{ i.created_at }}</td>
-        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('dashboard', analysis_id=i.id) }}">View</a></td></tr>
+        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('dashboard', token=i.token) }}">View</a></td></tr>
   {% else %}
     <tr><td colspan="6" class="text-center text-muted py-4">No analyses yet. <a href="{{ url_for('index') }}">Analyze a resume</a></td></tr>
   {% endfor %}

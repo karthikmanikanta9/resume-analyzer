@@ -37,7 +37,7 @@
 
 <div class="row g-3 mb-3">
   <div class="col-lg-7"><div class="card h-100 p-3"><div class="stat-label mb-2">Score breakdown</div><canvas id="breakChart" height="230"></canvas></div></div>
-  <div class="col-lg-5"><div class="card h-100 p-3"><div class="stat-label mb-2">ATS score for every role</div><canvas id="rolesChart" height="230"></canvas></div></div>
+  <div class="col-lg-5"><div class="card h-100 p-3"><div class="stat-label mb-2">Resume score and ATS score for every role</div><canvas id="rolesChart" height="230"></canvas></div></div>
 </div>
 
 <div class="row g-3 mb-3">
@@ -82,10 +82,13 @@ new Chart(document.getElementById('breakChart'), {
     { label: 'Maximum', data: names.map(n => R.breakdown[n].max), backgroundColor: '#d1d5db' } ] },
   options: { indexAxis: 'y', plugins: { legend: { position: 'bottom' } } }
 });
+const roleNames = Object.keys(R.all_roles);
 new Chart(document.getElementById('rolesChart'), {
   type: 'bar',
-  data: { labels: Object.keys(R.all_roles), datasets: [{ label: 'ATS %', data: Object.values(R.all_roles), backgroundColor: '#7b4fe0' }] },
-  options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+  data: { labels: roleNames, datasets: [
+    { label: 'Resume score', data: roleNames.map(n => (R.all_scores || {})[n]), backgroundColor: '#3b3fd8' },
+    { label: 'ATS %', data: roleNames.map(n => R.all_roles[n]), backgroundColor: '#7b4fe0' } ] },
+  options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { position: 'bottom' } } }
 });
 </script>
 {% endblock %}
