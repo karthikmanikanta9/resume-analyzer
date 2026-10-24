@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Results - {{ rec.filename }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="mb-0">Analysis report</h3>
+    <div class="text-muted">{{ rec.filename }} &middot; Target role: <strong>{{ rec.role }}</strong> &middot; {{ rec.created_at }}</div>
+  </div>
+  <div class="no-print mt-2 mt-md-0">
+    <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print / Save PDF</button>
+    <a class="btn btn-primary" href="{{ url_for('index') }}"><i class="bi bi-arrow-repeat"></i> Analyze another</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="card h-100 text-center p-3">
+    <div class="stat-label mb-2">Resume score</div>
+    <div class="gauge-wrap"><canvas id="scoreChart"></canvas><div class="gauge-num"><span class="big">{{ r.score }}</span><span class="text-muted small">/ 100</span></div></div>
+    <span class="badge text-bg-{{ color }} mt-3 mx-auto">{{ label }}</span>
+  </div></div>
+  <div class="col-md-4"><div class="card h-100 text-center p-3">
+    <div class="stat-label mb-2">ATS compatibility ({{ rec.role }})</div>
+    <div class="gauge-wrap"><canvas id="atsChart"></canvas><div class="gauge-num"><span class="big">{{ r.ats.ats_score }}</span><span class="text-muted small">%</span></div></div>
+    <div class="small text-muted mt-3">Keyword match {{ r.ats.keyword_match_pct }}% &middot; Text similarity {{ r.ats.similarity_pct }}%</div>
+  </div></div>
+  <div class="col-md-4"><div class="card h-100 p-3">
+    <div class="stat-label mb-2">Quick facts</div>
+    <ul class="list-unstyled mb-0">
+      <li class="mb-2"><i class="bi bi-check2-circle text-success"></i> Keywords found: <strong>{{ r.ats.matched|length }}</strong></li>
+      <li class="mb-2"><i class="bi bi-x-circle text-danger"></i> Keywords missing: <strong>{{ r.ats.missing|length }}</strong></li>
+      <li class="mb-2"><i class="bi bi-list-ul"></i> Sections detected: <strong>{{ r.sections_found|length }}</strong></li>
+      <li class="mb-2"><i class="bi bi-file-text"></i> Word count: <strong>{{ r.word_count }}</strong></li>
+      <li><i class="bi bi-lightbulb text-warning"></i> Suggestions: <strong>{{ r.tips|length }}</strong></li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-7"><div class="card h-100 p-3"><div class="stat-label mb-2">Score breakdown</div><canvas id="breakChart" height="230"></canvas></div></div>
+  <div class="col-lg-5"><div class="card h-100 p-3"><div class="stat-label mb-2">ATS score for every role</div><canvas id="rolesChart" height="230"></canvas></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="card h-100 p-3">
+    <div class="stat-label mb-2">Matched skills</div>
+    {% for k in r.ats.matched %}<span class="chip chip-ok">{{ k }}</span>{% else %}<span class="text-muted">None found</span>{% endfor %}
+  </div></div>
+  <div class="col-md-6"><div class="card h-100 p-3">
+    <div class="stat-label mb-2">Missing skills (skill gap)</div>
+    {% for k in r.ats.missing %}<span class="chip chip-miss">{{ k }}</span>{% else %}<span class="text-muted">No gaps. Great!</span>{% endfor %}
+  </div></div>
+</div>
+
+<div class="card p-3 mb-4">
+  <div class="stat-label mb-3">Improvement suggestions</div>
+  {% for t in r.tips %}
+    <div class="tip tip-{{ t.priority }}"><span class="badge text-bg-{{ 'danger' if t.priority=='High' else ('warning' if t.priority=='Medium' else 'info') }} me-2">{{ t.priority }}</span>{{ t.text }}</div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+const R = {{ r|tojson }};
+function gauge(id, val, color) {
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: { datasets: [{ data: [val, 100 - val], backgroundColor: [color, '#e5e7eb'], borderWidth: 0 }] },
+    options: { cutout: '78%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+  });
+}
+const sc = R.score >= 80 ? '#16a34a' : R.score >= 60 ? '#3b3fd8' : R.score >= 40 ? '#f59e0b' : '#dc2626';
+const ac = R.ats.ats_score >= 70 ? '#16a34a' : R.ats.ats_score >= 40 ? '#3b3fd8' : R.ats.ats_score >= 20 ? '#f59e0b' : '#dc2626';
+gauge('scoreChart', R.score, sc);
+gauge('atsChart', R.ats.ats_score, ac);
+
+const names = Object.keys(R.breakdown);
+new Chart(document.getElementById('breakChart'), {
+  type: 'bar',
+  data: { labels: names, datasets: [
+    { label: 'Your points', data: names.map(n => R.breakdown[n].got), backgroundColor: '#3b3fd8' },
+    { label: 'Maximum', data: names.map(n => R.breakdown[n].max), backgroundColor: '#d1d5db' } ] },
+  options: { indexAxis: 'y', plugins: { legend: { position: 'bottom' } } }
+});
+new Chart(document.getElementById('rolesChart'), {
+  type: 'bar',
+  data: { labels: Object.keys(R.all_roles), datasets: [{ label: 'ATS %', data: Object.values(R.all_roles), backgroundColor: '#7b4fe0' }] },
+  options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}

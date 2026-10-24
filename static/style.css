@@ -1,0 +1,15 @@
+body { background: #f4f6fb; }
+.app-nav { background: linear-gradient(90deg, #3b3fd8, #6a3fd8); }
+.hero { background: linear-gradient(135deg, #3b3fd8, #7b4fe0); color: #fff; border-radius: 18px; padding: 2.5rem 2rem; }
+.card { border: 0; border-radius: 16px; box-shadow: 0 2px 12px rgba(30, 40, 90, .08); }
+.stat-label { font-size: .85rem; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+.gauge-wrap { position: relative; max-width: 190px; margin: 0 auto; }
+.gauge-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.gauge-num .big { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.chip { display: inline-block; padding: .3rem .75rem; margin: .2rem; border-radius: 999px; font-size: .85rem; }
+.chip-ok { background: #dcfce7; color: #166534; }
+.chip-miss { background: #fee2e2; color: #991b1b; }
+.tip { border-left: 4px solid #ccc; padding: .6rem .9rem; margin-bottom: .6rem; background: #fafbff; border-radius: 6px; }
+.tip-High { border-color: #dc3545; } .tip-Medium { border-color: #f59e0b; } .tip-Low { border-color: #3b82f6; }
+.dropzone { border: 2px dashed #a5a8f0; border-radius: 14px; padding: 2rem; text-align: center; background: #fafaff; }
+@media print { .no-print { display: none !important; } body { background: #fff; } .card { box-shadow: none; border: 1px solid #ddd; } }

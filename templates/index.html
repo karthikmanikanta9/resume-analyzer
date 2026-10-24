@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero mb-4">
+  <h1 class="fw-bold">Is your resume ATS-ready?</h1>
+  <p class="lead mb-0">Upload your resume, pick a target role, and get an instant score, keyword gap analysis and personalised suggestions.</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">1. Target job role</label>
+          <select name="role" class="form-select form-select-lg" required>
+            <option value="" disabled selected>Select a role...</option>
+            {% for r in roles %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">2. Upload resume (PDF or DOCX, max 5 MB)</label>
+          <div class="dropzone">
+            <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+            <input type="file" name="resume" id="resume" class="form-control mt-2" accept=".pdf,.docx" required>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg w-100" id="btn" type="submit"><i class="bi bi-lightning-charge me-1"></i>Analyze my resume</button>
+        <p class="text-muted small mt-3 mb-0"><i class="bi bi-shield-check"></i> Your file is deleted right after text extraction. Only the results are saved.</p>
+      </form>
+    </div></div>
+  </div>
+</div>
+<div class="row mt-4 g-3 text-center">
+  {% for icon, t, d in [("bar-chart-line","Resume Score","Rule-based score out of 100"),("search","ATS Keywords","Role-specific keyword match"),("lightbulb","Smart Feedback","Prioritised suggestions"),("speedometer2","Dashboard","Charts and printable report")] %}
+  <div class="col-6 col-md-3"><div class="card h-100 p-3"><i class="bi bi-{{ icon }} fs-2 text-primary"></i><div class="fw-semibold mt-2">{{ t }}</div><div class="small text-muted">{{ d }}</div></div></div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('uploadForm').addEventListener('submit', function () {
+  var b = document.getElementById('btn'); b.disabled = true; b.innerHTML = 'Analyzing...';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{
+  "Data Analyst": [
+    "sql", "python", "excel", "power bi|powerbi", "tableau", "pandas", "numpy",
+    "data visualization|data visualisation", "statistics", "data cleaning",
+    "data analysis", "etl", "dashboard", "matplotlib", "seaborn", "mysql",
+    "postgresql", "google sheets", "a/b testing", "regression", "reporting",
+    "business intelligence|bi", "data wrangling", "r", "jupyter"
+  ],
+  "Web Developer": [
+    "html", "css", "javascript", "react|react.js|reactjs", "node.js|nodejs|node",
+    "bootstrap", "tailwind", "git", "github", "rest api|restful|api", "typescript",
+    "responsive design|responsive", "mongodb", "sql", "express|express.js",
+    "flask", "django", "php", "angular", "vue|vue.js", "json", "ajax",
+    "web development|web developer", "frontend|front-end|front end",
+    "backend|back-end|back end", "deployment", "firebase", "next.js|nextjs"
+  ],
+  "AI Engineer": [
+    "python", "machine learning", "deep learning", "tensorflow", "pytorch",
+    "scikit-learn|sklearn", "nlp|natural language processing", "pandas", "numpy",
+    "cnn|convolutional neural network", "rnn|lstm", "transformers|bert",
+    "computer vision", "keras", "opencv", "neural network|ann",
+    "model deployment|deployment", "generative ai|genai", "llm|large language model",
+    "data preprocessing|feature engineering", "hyperparameter tuning|cross validation",
+    "random forest|decision tree", "git", "flask|fastapi", "reinforcement learning"
+  ],
+  "Cloud Engineer": [
+    "aws", "azure", "gcp|google cloud", "docker", "kubernetes|k8s", "linux",
+    "terraform", "ci/cd|cicd", "jenkins", "git", "networking", "devops",
+    "ec2", "s3", "lambda|serverless", "iam", "monitoring", "bash|shell scripting",
+    "python", "ansible", "cloud computing|cloud", "load balancer|load balancing",
+    "virtualization|vpc", "cloudformation", "security"
+  ]
+}
