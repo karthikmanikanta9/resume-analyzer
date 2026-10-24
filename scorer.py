@@ -66,6 +66,20 @@ def _count_skills(block):
                if re.search(r"(?<![a-z0-9])" + re.escape(k) + r"(?![a-z0-9])", low))
 
 
+def _count_role_skills(block, role):
+    """How many of the selected role's keywords (incl. aliases) appear in this text."""
+    if not role or role not in ROLES:
+        return _count_skills(block)
+    low = block.lower()
+    n = 0
+    for entry in ROLES[role]:
+        for a in entry.split("|"):
+            if re.search(r"(?<![a-z0-9])" + re.escape(a.strip()) + r"(?![a-z0-9])", low):
+                n += 1
+                break
+    return n
+
+
 def _substantive(block, min_len=60):
     return len([l for l in block.split("\n") if len(l.strip()) >= min_len])
 
@@ -74,7 +88,7 @@ def _count_items(block):
     return len([l for l in block.split("\n") if len(l.strip()) > 15])
 
 
-def score_resume(text):
+def score_resume(text, role=None):
     found, lines = detect_sections(text)
     sec = lambda n: section_text(lines, found, n)
     breakdown, notes = {}, {}
@@ -101,13 +115,15 @@ def score_resume(text):
         pts += 5
     breakdown["Education"] = (pts, 15)
 
-    # Skills (20): heading 4 + number of recognised technical skills (16)
+    # Skills (20): heading 4 + role-relevant skills 12 + general breadth 4
     skills = sec("skills")
     pts = 0
     if "skills" in found:
         pts += 4
-        n = _count_skills(skills)
-        pts += 16 if n >= 10 else (12 if n >= 6 else (8 if n >= 3 else (4 if n >= 1 else 0)))
+        nr = _count_role_skills(skills, role)
+        pts += 12 if nr >= 8 else (9 if nr >= 5 else (6 if nr >= 3 else (3 if nr >= 1 else 0)))
+        ng = _count_skills(skills)
+        pts += 4 if ng >= 6 else (2 if ng >= 3 else 0)
     breakdown["Skills"] = (pts, 20)
 
     # Projects (20): heading 4 + substantive entries 6 + action verbs 5 + tech keywords 5
@@ -119,7 +135,7 @@ def score_resume(text):
         pts += 6 if items >= 3 else (3 if items >= 1 else 0)
         verbs = len(ACTION_VERBS.findall(proj))
         pts += 5 if verbs >= 3 else (2 if verbs >= 1 else 0)
-        tech = _count_skills(proj)
+        tech = _count_role_skills(proj, role)
         pts += 5 if tech >= 3 else (2 if tech >= 1 else 0)
     breakdown["Projects"] = (pts, 20)
 
@@ -150,5 +166,5 @@ def score_resume(text):
     notes["Structure & Length"] = {"words": words, "sections_found": sorted(found.keys())}
 
     total = sum(p for p, _ in breakdown.values())
-    return {"total": total, "breakdown": breakdown, "notes": notes,
+    return {"role": role, "total": total, "breakdown": breakdown, "notes": notes,
             "sections_found": sorted(found.keys()), "word_count": words}

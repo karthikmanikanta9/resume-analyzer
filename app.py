@@ -3,7 +3,7 @@ import os
 import tempfile
 import uuid
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
 import db
@@ -59,9 +59,10 @@ def analyze():
         if os.path.exists(tmp_path):
             os.remove(tmp_path)  # privacy: delete the uploaded file immediately
 
-    score = score_resume(text)
+    score = score_resume(text, role)
     ats = ats_analysis(text, role)
     all_roles = {r: ats_analysis(text, r)["ats_score"] for r in list_roles()}
+    all_scores = {r: score_resume(text, r)["total"] for r in list_roles()}
     tips = generate_feedback(text, score, ats)
 
     result = {
@@ -71,15 +72,17 @@ def analyze():
         "word_count": score["word_count"],
         "ats": ats,
         "all_roles": all_roles,
+        "all_scores": all_scores,
         "tips": tips,
     }
-    aid = db.save_analysis(secure_filename(file.filename), role, score["total"], ats["ats_score"], result)
-    return redirect(url_for("dashboard", analysis_id=aid))
+    token = db.save_analysis(secure_filename(file.filename), role, score["total"], ats["ats_score"], result)
+    session["tokens"] = (session.get("tokens", []) + [token])[-30:]
+    return redirect(url_for("dashboard", token=token))
 
 
-@app.route("/result/<int:analysis_id>")
-def dashboard(analysis_id):
-    rec = db.get_analysis(analysis_id)
+@app.route("/result/<token>")
+def dashboard(token):
+    rec = db.get_analysis(token)
     if not rec:
         flash("Analysis not found.", "danger")
         return redirect(url_for("index"))
@@ -89,7 +92,7 @@ def dashboard(analysis_id):
 
 @app.route("/history")
 def history():
-    return render_template("history.html", items=db.list_analyses())
+    return render_template("history.html", items=db.list_analyses(session.get("tokens", [])))
 
 
 @app.errorhandler(413)

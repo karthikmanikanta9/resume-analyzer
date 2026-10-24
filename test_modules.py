@@ -10,7 +10,7 @@ for f in files:
         text = extract_text(f)
     except ValueError as e:
         print("ERROR:", e); continue
-    r = score_resume(text)
+    r = score_resume(text, "Data Analyst")
     print("Resume score:", r["total"], "/ 100")
     for k, (p, m) in r["breakdown"].items():
         print(f"   {k:20s} {p}/{m}")
